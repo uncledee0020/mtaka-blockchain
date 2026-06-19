@@ -1,5 +1,5 @@
 const express = require('express');
-const { recordEvent, getChain } = require('./service');
+const { recordEvent, getChain, isValid, getTotalCO2Saved, getTotalDevicesRecycled, getTotalRewards } = require('./service');
 
 const app = express();
 app.use(express.json());
@@ -23,6 +23,40 @@ app.post('/record', (req, res) => {
  */
 app.get('/chain', (req, res) => {
   res.json(getChain());
+});
+
+app.get('/validate', (req, res) => {
+  res.json({
+    valid: isValid()
+  });
+});
+
+app.get('/user/:userId', (req, res) => {
+  const chain = getChain();
+
+  const result =  chain.filter(
+    block => block.data && block.data.userId === req.params.userId
+  );
+
+  res.json(result);
+});
+
+app.get('/device/:deviceId', (req, res) => {
+  const chain = getChain();
+
+  const result =  chain.filter(
+    block => block.data && block.data.deviceId === req.params.deviceId
+  );
+  
+  res.json(result);
+});
+
+app.get('/stats', (req, res) => {
+  res.json({
+    totalCo2Saved: getTotalCO2Saved(),
+    totalDevicesRecycled: getTotalDevicesRecycled(),
+    totalRewards: getTotalRewards()
+  });
 });
 
 app.listen(3000, () => {
