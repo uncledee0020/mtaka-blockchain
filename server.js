@@ -1,5 +1,16 @@
 const express = require('express');
-const { recordEvent, getChain, isValid, getTotalCO2Saved, getTotalDevicesRecycled, getTotalRewards } = require('./service');
+const { 
+  recordEvent, 
+  getChain, 
+  isValid, 
+  getTotalCO2Saved, 
+  getTotalDevicesRecycled, 
+  getTotalRewards, 
+  resetChain,
+  getUserStats,
+  getTotalUsersRecycled // <-- Add this line
+} = require('./service');
+
 
 const app = express();
 app.use(express.json());
@@ -55,9 +66,44 @@ app.get('/stats', (req, res) => {
   res.json({
     totalCo2Saved: getTotalCO2Saved(),
     totalDevicesRecycled: getTotalDevicesRecycled(),
-    totalRewards: getTotalRewards()
+    totalRewards: getTotalRewards(),
+    totalUsersRecycled: getTotalUsersRecycled() // <-- Add this line
   });
 });
+
+
+app.get('/tamper', (req, res) => {
+  const chain = getChain();
+  if (chain.length > 1 
+    // && chain[1].data
+  ) {
+    chain[1].data.reward = 9999; // change reward
+  }
+
+  res.json({
+    message: "Blockchain tampered"
+  });
+});
+
+
+
+app.get('/reset', (req, res) => { 
+  resetChain();
+
+  res.json({
+    message: "Blockchain reset!"
+  });
+});
+
+/**
+ * Get aggregated stats for a specific user
+ */
+app.get('/user/:userId/stats', (req, res) => {
+  const userId = req.params.userId;
+  const stats = getUserStats(userId);
+  res.json(stats);
+});
+
 
 app.listen(3000, () => {
   console.log('Blockchain running on port 3000');

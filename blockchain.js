@@ -1,8 +1,10 @@
+// blockchain.js
 const Block = require('./block');
 
 class Blockchain {
   constructor() {
     this.chain = [this.createGenesisBlock()];
+    this.difficulty = 2; // Keeps mining under ~50ms on server, but showcases proof-of-work
   }
 
   createGenesisBlock() {
@@ -15,8 +17,7 @@ class Blockchain {
 
   addBlock(newBlock) {
     newBlock.previousHash = this.getLatestBlock().hash;
-    newBlock.hash = newBlock.calculateHash();
-
+    newBlock.mineBlock(this.difficulty); // Replaces instant calculation with mining
     this.chain.push(newBlock);
   }
 
